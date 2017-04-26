@@ -1,3 +1,2 @@
 # newsmap
 newsmap
-lol
