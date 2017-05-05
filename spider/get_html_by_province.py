@@ -4,6 +4,10 @@ from selenium import webdriver
 from csv_parser import CSVParser
 import urllib
 import re
+import os
+import sys
+import mysql.connector
+from mysql.connector import Error
 
 
 def extract_links(source, base):
@@ -27,6 +31,7 @@ def extract_links(source, base):
             lremove.add(addr)   #delete address without date
     return lret - lremove
 
+
 def extract_news_info(url):
     assert isinstance(url, str)
     title = ""
@@ -39,6 +44,7 @@ def extract_news_info(url):
     pArticleHeader = source.find("<div class=\"article-header", pArticleBox)
     pTitle = source.find("<h1>", pArticleHeader)
     pTitleEnd = source.find("</h1>", pTitle)
+    assert pArticleBox != -1 and pArticleHeader != -1 and pTitle != -1 and pTitleEnd != -1
     title += source[pTitle + len("<h1>"): pTitleEnd].strip()
 
     stackNum = 1
@@ -53,7 +59,7 @@ def extract_news_info(url):
         else:
             stackNum -= 1
             pFind = p2 + len("</div>")
-    pContentEnd = pFind
+    pContentEnd = pFind             #get the end of the content
 
 
     pContent = source.find("<div class=\"article-body main-body\">", pTitleEnd)
@@ -65,6 +71,26 @@ def extract_news_info(url):
         assert pContentEnd != -1
         content += source[pParagraph + len("<p>"): pParagraphEnd]
         pContent = pParagraphEnd + len("</p>")
+
+    pFindBracket = 0
+    pLast = False #true: the last bracket is <
+
+    while True:
+        if pLast:
+            pFindBracketEnd = content.find(">", pFindBracket)
+            if pFindBracketEnd == -1:
+                break
+            strMid = content[pFindBracket: pFindBracketEnd + 1]
+            content = content.replace(strMid, "")
+            pLast = False
+            pFindBracket = 0
+        else:
+            pFindBracketNext = content.find("<", pFindBracket)
+            if pFindBracketNext == -1:
+                break
+            pFindBracket = pFindBracketNext
+            pLast = True
+
     return title, content
 
 
@@ -79,7 +105,49 @@ def write_news_to_file(title, content, date, province):
     f.close()
 
 
+def open_database_connection():
+    conn = None
+    try:
+        conn = mysql.connector.connect(host="localhost", database="news", user="root", password="?&*()NSDWE19", charset="utf8")
+        cursor = conn.cursor()
+        cursor.execute("SET names utf8;")
+        cursor.execute("SET character_set_client = utf8;")
+        cursor.execute("SET character_set_connection = utf8;")
+        cursor.execute("SET character_set_database = utf8;")
+        cursor.execute("SET character_set_results = utf8;")
+        cursor.execute("SET character_set_server = utf8;")
+    except Error as e:
+        print "Cannot connect to database, the error message:" + e.message + "\n"
+        if conn is not None:
+            conn.close()
+            os._exit()
+    return conn
+
+
+def close_database_connection(conn):
+    assert isinstance(conn, mysql.connector.connection.MySQLConnection)
+    if conn is not None:
+        conn.close()
+
+
+def create_table(conn):
+    assert isinstance(conn, mysql.connector.connection.MySQLConnection)
+    cursor = conn.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS news (title VARCHAR(50), time_happened DATE, province VARCHAR(10), content TEXT) ENGINE=InnoDB DEFAULT CHARSET=utf8;")
+
+
+def write_news_to_database(conn, title, content, date, province):
+    assert isinstance(conn, mysql.connector.connection.MySQLConnection)
+    cursor = conn.cursor()
+    content = content.replace("\\", "\\\\").replace("'", "\\'")
+    title = title.replace("\\", "\\\\").replace("'", "\\'")
+    sql = "INSERT INTO news VALUES('%s','%s','%s','%s');" % (title, date, province, content)
+    cursor.execute(sql)
+    conn.commit()
+
 def main():
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
     parser = CSVParser("./webmapping.csv")
     parser.parse()
     data = parser.get_element(1, 25, 0, 2)
@@ -88,14 +156,22 @@ def main():
     for i in range(0, l):
         entry_dict[data[i][0]] = ("http://" + data[i][1] + ".sina.com.cn").replace("\r", "").replace("\n", "")
 
+    conn = open_database_connection()
+    create_table(conn)
     for province in entry_dict.keys():
-        source = urllib.urlopen(entry_dict[province]).read()
-        lnews = extract_links(source, entry_dict[province])          # the link of all news
+        url = entry_dict[province]
+        source = urllib.urlopen(url).read()
+        lnews = extract_links(source, url)          # the link of all news
         for lanews in lnews:
-            title, content = extract_news_info(lanews)
-            date = "2017-5-4"
-            #TODO: aquire the date
-            prov = province
-            write_news_to_file(title, content, date, prov)
-
+            try:
+                title, content = extract_news_info(lanews)
+                pattern = re.compile(r"\d\d\d\d-\d\d-\d\d")
+                date = re.search(pattern, lanews).group()
+                write_news_to_database(conn, title, content, date, province)
+            except AssertionError as e:  #regardless of invalid news
+                continue
+            except Exception as e2:
+                print "In news " + lanews + ":" + e2.message + "\n"
+    close_database_connection(conn)
+    
 main()
