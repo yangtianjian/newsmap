@@ -1,6 +1,5 @@
 # -*- coding:utf-8 -*-
 
-from selenium import webdriver
 from csv_parser import CSVParser
 import urllib
 import re
@@ -136,20 +135,15 @@ def create_table(conn):
     cursor.execute("CREATE TABLE IF NOT EXISTS news (id INT UNIQUE AUTO_INCREMENT, title VARCHAR(50), time_happened DATE, province VARCHAR(10), content TEXT, link TEXT, PRIMARY KEY(title, time_happened)) ENGINE=InnoDB DEFAULT CHARSET=utf8;")
 
 
-def write_news_to_database(conn, title, content, date, province, link):
+def write_news_to_database(conn, id, title, content, date, province, link):
     assert isinstance(conn, mysql.connector.connection.MySQLConnection)
     cursor = conn.cursor()
     content = content.replace("\\", "\\\\").replace("'", "\\'")
     title = title.replace("\\", "\\\\").replace("'", "\\'")
     link = link.replace("\\", "\\\\").replace("'", "\\'")
-    sql = "INSERT INTO news(title, time_happened, province, content, link) VALUES('%s','%s','%s','%s', '%s');" % (title, date, province, content, link)
+    sql = "INSERT INTO news(id, title, time_happened, province, content, link) VALUES('%s','%s','%s','%s','%s','%s');" % (id, title, date, province, content, link)
     cursor.execute(sql)
     conn.commit()
-
-
-def rearrange_id(conn):
-    cursor = conn.cursor()
-    cursor.callproc("rearrange_id")
 
 
 def main():
@@ -165,6 +159,11 @@ def main():
 
     conn = open_database_connection()
     create_table(conn)
+
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM news;")
+    id = cursor.fetchone()[0] + 1
+
     for province in entry_dict.keys():
         url = entry_dict[province]
         source = urllib.urlopen(url).read()
@@ -174,15 +173,12 @@ def main():
                 title, content = extract_news_info(lanews)
                 pattern = re.compile(r"\d\d\d\d-\d\d-\d\d")
                 date = re.search(pattern, lanews).group()
-                write_news_to_database(conn, title, content, date, province, lanews)
+                write_news_to_database(conn, id, title, content, date, province, lanews)
+                id += 1
             except AssertionError as e:  #regardless of invalid news
                 continue
             except Exception as e2:
                 print "In news " + lanews + ":" + e2.message + "\n"
-    conn.commit()
-    print "Rearranging..."
-    rearrange_id(conn)
-    print "Finished."
     close_database_connection(conn)
 
 main()
