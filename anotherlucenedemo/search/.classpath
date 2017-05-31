@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="C:/Users/bear1/Desktop/lucene-6.5.1/lucene-6.5.1/demo/lucene-demo-6.5.1.jar"/>
 	<classpathentry kind="lib" path="C:/Users/bear1/Desktop/lucene-6.5.1/lucene-6.5.1/analysis/common/lucene-analyzers-common-6.5.1.jar"/>
 	<classpathentry kind="lib" path="C:/Users/bear1/Desktop/lucene-6.5.1/lucene-6.5.1/queryparser/lucene-queryparser-6.5.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/bear1/Desktop/mysql-connector-java-5.1.42/mysql-connector-java-5.1.42/mysql-connector-java-5.1.42-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
