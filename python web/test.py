@@ -65,8 +65,8 @@ def home():
         <div class="am-collapse am-topbar-collapse" id="collapse-head">
             <ul class="am-nav am-nav-pills am-topbar-nav">
                 <li class="am-active"><a href="#">首页</a></li>
+                <li><a href="/search">新闻搜索</a></li>
                 <li><a href="http://news.sina.com.cn/">新浪新闻</a></li>
-                <li><a href="http://news.qq.com/">腾讯新闻</a></li>
             </ul>
         </div>
     </div>
@@ -218,6 +218,23 @@ def heilongjiang():
                     </ul>
     '''+shengshiEnd()
 
+@app.route('/searchResult', methods=['POST'])
+def searchResult():
+    keyword=request.form['keyword']
+    return shengshiHead()+prinNewsDetail(keyword,keyword,"http://www.baidu.com/")+prinNewsDetail("新闻标题2","新闻标题2","http://www.baidu.com/")+'''
+                    </ul>
+                    <ul data-am-widget="pagination" class="am-pagination am-pagination-default" style="text-align: center">
+                        <li class="am-pagination-prev ">
+                            <a href="#" class="">上一页</a>
+                        </li>
+
+                        <li class="am-pagination-next ">
+                            <a href="#" class="">下一页</a>
+                        </li>
+
+                    </ul>
+    '''+shengshiEnd()
+
 @app.route('/signin', methods=['GET'])
 def signin_form():
     return '''<form action="/signin" method="post">
@@ -232,6 +249,69 @@ def signin():
     if request.form['username']=='admin' and request.form['password']=='password':
         return '<h3>Hello, admin!</h3>'
     return '<h3>Bad username or password.</h3>'
+
+@app.route('/search',  methods=['GET', 'POST'])
+def indexSearch():
+    return'''
+    <!DOCTYPE HTML>
+<html>
+<head>
+<title>新闻搜索</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="http://dreamspark.com.cn/style.css" rel="stylesheet" type="text/css" media="all" />
+<script src="http://dreamspark.com.cn/jquery.min.js"></script>
+    <link rel="stylesheet" href="http://dreamspark.com.cn/amazeui.min.css">
+    <link rel="stylesheet" href="http://dreamspark.com.cn/public.css">
+
+    <script src="http://dreamspark.com.cn/amazeui.min.js"></script>
+</head>
+<body>
+<header class="am-topbar am-topbar-fixed-top wos-header">
+    <div class="am-container">
+        <h1 class="am-topbar-brand">
+            <a href="#"><img src="http://dreamspark.com.cn/images/logo.png" alt=""></a>
+        </h1>
+        <div class="am-collapse am-topbar-collapse" id="collapse-head">
+            <ul class="am-nav am-nav-pills am-topbar-nav">
+                <li><a href="/">首页</a></li>
+                <li class="am-active"><a href="#">新闻搜索</a></li>
+            </ul>
+        </div>
+    </div>
+</header>
+
+<div class="index-banner">
+
+	    <div class="wmuSlider example1">
+			   <article style="position: absolute; width: 100%; opacity: 0;"> 
+				   	<div class="banner-wrap">
+						<div class="cont span_2_of_3">
+						    <h1>SEARCH NEWS.</h1>
+						     <div class="search_box">
+								<form action="/searchResult" method="post">
+								   <input name="keyword" type="text"><input type="submit" value="">
+							    </form>
+			 				</div>
+						</div>
+					</div>
+				 </article>
+				 <article style="position: absolute; width: 100%; opacity: 0;"> 
+				   	<div class="banner-wrap">
+						<div class="cont span_2_of_3">
+						   <h1>NEWS MAP, A NEW WAY TO GET NEWS.</h1>
+						</div>
+					</div>
+				 </article>
+		  </div>
+                  <script src="http://dreamspark.com.cn/jquery.wmuSlider.js"></script> 
+					<script>
+       				     $('.example1').wmuSlider();         
+   					</script> 	           	      
+   	   </div>
+</body>
+</html>
+    '''
 
 if __name__ == '__main__':
     app.run()
