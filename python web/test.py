@@ -95,7 +95,7 @@ def home():
             max: 500,
             left: 'left',
             top: 'bottom',
-            text: ['300','0'],
+            text: ['500','0'],
             calculable: true
         },
         toolbox: {
@@ -141,7 +141,8 @@ def shengshiHead():
 
     <script src="http://dreamspark.com.cn/jquery.min.js"></script>
     <script src="http://dreamspark.com.cn/amazeui.min.js"></script>
-    
+</head>    
+
     <body>
 
 <header class="am-topbar am-topbar-fixed-top wos-header">
@@ -158,37 +159,90 @@ def shengshiHead():
     </div>
 </header>
 
-    <div class="am-g">
-        <div class="am-u-sm-0 am-u-md-2 am-u-lg-3">&nbsp;</div>
-        <div class="am-u-sm-12 am-u-md-8 am-u-lg-6">
-            <div data-am-widget="list_news" class="am-list-news am-list-news-default ">
-                <div class="am-list-news-bd">
-                    <ul class="am-list">
-</head>
+<div class="am-g am-container newatype">
+    <div class="am-u-sm-12 am-u-md-12 am-u-lg-8 oh">
+        <div data-am-widget="titlebar" class="am-titlebar am-titlebar-default" style="border-bottom: 0px; margin-bottom: -10px">
+            <h2 class="am-titlebar-title ">
+                新闻列表
+            </h2>
+        </div>
+
+        <div data-am-widget="list_news" class="am-list-news am-list-news-default news">
+            <div class="am-list-news-bd">
+                <ul class="am-list">
+
     '''
 def shengshiEnd():
     return'''
-                    </div>
+</ul>
             </div>
+
         </div>
-        <div class="am-u-sm-0 am-u-md-2 am-u-lg-3">&nbsp;</div>
     </div>
+
+    <div class="am-u-sm-12 am-u-md-12 am-u-lg-4">
+        <div data-am-widget="titlebar" class="am-titlebar am-titlebar-default">
+            <h2 class="am-titlebar-title ">
+                广告
+            </h2>
+        </div>
+        <div data-am-widget="list_news" class="am-list-news am-list-news-default right-bg" data-am-scrollspy="{animation:'fade'}">
+                <ul class="am-list"  >
+                    <li class="am-g am-list-item-desced am-list-item-thumbed am-list-item-thumb-left">
+
+
+                        <div class=" am-u-sm-8 am-list-main">
+                            <h3 class="am-list-item-hd"><a href="http://news.sina.com.cn/">新浪新闻</a></h3>
+
+                            <div class="am-list-item-text">新浪新闻由新浪官方出品，及时获取全球新闻资讯，国内国外要闻，精彩的体育赛事报道，金融财经动向，影视娱乐事件，还有独家微博“微”新闻，精彩随你看，新闻、星座、笑话一个都不少。</div>
+                        </div>
+                    </li>
+                    <hr data-am-widget="divider" style="" class="am-divider am-divider-default" />
+                    <li class="am-g am-list-item-desced am-list-item-thumbed am-list-item-thumb-left">
+
+
+                        <div class=" am-u-sm-8 am-list-main">
+                            <h3 class="am-list-item-hd"><a href="http://news.qq.com/">腾讯新闻</a></h3>
+
+                            <div class="am-list-item-text">《腾讯新闻》是腾讯团队用心打造的一款丰富、及时的新闻应用，本着精炼、轻便的目标，为用户提供高效、优质的阅读体验。全球视野，聚焦中国，一朝在手，博览天下。</div>
+
+                        </div>
+                    </li>
+                    <hr data-am-widget="divider" style="" class="am-divider am-divider-default" />
+                    <li class="am-g am-list-item-desced am-list-item-thumbed am-list-item-thumb-left">
+
+
+                        <div class=" am-u-sm-8 am-list-main">
+                            <h3 class="am-list-item-hd"><a href="http://news.baidu.com/">百度新闻</a></h3>
+
+                            <div class="am-list-item-text">百度新闻是百度公司推出的中文新闻搜索平台，每天发布多条新闻，新闻源包括500多个权威网站，热点新闻由新闻源网站和媒体每天“民主投票”选出，不含任何人工编辑成分，真实反映每时每刻的新闻热点</div>
+
+                        </div>
+                        
+                    </li>
+                    
+                </ul>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
     '''
 
-def prinNewsDetail(title, context,link):
+def prinNewsDetail(title, context,link,time):
     return '''
+                        <li class="am-g am-list-item-desced am-list-item-thumbed am-list-item-thumb-left" data-am-scrollspy="{animation:'fade'}">
 
-                        <li class="am-g am-list-item-desced am-list-item-thumbed am-list-item-thumb-left">
-                             <div class="am-u-md-12 am-u-lg-6 userface">
-                                 <h3 class="am-list-item-hd"><a href="'''+link+'''">''' + title + '''</a></h3>
-                             </div>
-                            <div class=" am-u-sm-7 am-list-main">
-                                <div class="am-list-item-text">''' + context + '''</div>
-                            </div>
-                        </li>
+                        <div class=" am-u-sm-9 am-list-main">
+                            <h3 class="am-list-item-hd"><a target='_blank' href="'''+link+'''">''' + title + '''</a></h3>
+                           <div class="am-list-item-text">''' + context + '''</div>
+                        </div>
+
+                    </li>
+                    <div class="newsico am-fr">
+                        <i class="am-icon-clock-o">'''+str(time)+'''</i>
+                    </div>
 
     '''
 
@@ -196,9 +250,9 @@ def chengshiDetail(name):
     strresult = shengshiHead()
     db = mysql.connector.connect(user='root', passwd='1234', db='news', charset='utf8')
     cur = db.cursor()
-    cur.execute("select title,content,link from news where province='"+name+"'")
+    cur.execute("select title,content,link,time_happened from news where province='"+name+"' order by time_happened desc")
     for row in cur.fetchall():
-        strresult += prinNewsDetail(row[0], row[1], row[2])
+        strresult += prinNewsDetail(row[0], row[1], row[2], row[3])
     cur.close()
     db.close()
     return strresult + '''
@@ -508,7 +562,7 @@ def home2():
             max: 500,
             left: 'left',
             top: 'bottom',
-            text: ['300','0'],
+            text: ['500','0'],
             calculable: true
         },
         toolbox: {
