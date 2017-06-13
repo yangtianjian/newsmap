@@ -1,17 +1,20 @@
 # coding: utf-8
 from flask import Flask
 from flask import request
+from search import query
 import sys
+
 reload(sys)
 sys.setdefaultencoding('utf-8')
 import mysql.connector
 
 app = Flask(__name__)
 
-def printme(title,city,num):
-    str1="{ name:'"
-    str1 = str1+title+"',"
-    str2= """
+
+def printme(title, city, num):
+    str1 = "{ name:'"
+    str1 = str1 + title + "',"
+    str2 = """
         type: 'map',
         mapType: 'china',
         roam: false,
@@ -25,22 +28,23 @@ def printme(title,city,num):
         },
         data:[
         {name:'"""
-    str2=str2+str(city)+"',value: '"+str(num) + "' },]},"
-    return str1+str2
+    str2 = str2 + str(city) + "',value: '" + str(num) + "' },]},"
+    return str1 + str2
+
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    db = mysql.connector.connect(user='root',passwd='1234',db='news',charset='utf8')
+    db = mysql.connector.connect(user='root', passwd='dophin', db='news', charset='utf8')
 
     cur = db.cursor()
-    #cur.execute('select title,province from news')
+    # cur.execute('select title,province from news')
     cur.execute("select province,count(*) from news group by province")
-    str=""
+    str = ""
     for row in cur.fetchall():
-        str+= printme("新闻：",row[0],row[1])
+        str += printme("新闻：", row[0], row[1])
     cur.execute("select title,province from news group by province")
     for row in cur.fetchall():
-        str+= printme(row[0]+" 等" ,row[1],"0")
+        str += printme(row[0] + " 等", row[1], "0")
 
     cur.close()
     db.close()
@@ -76,7 +80,7 @@ def home():
 <div id="main" style="width: 1800px;height:800px;"></div>
 <script type="text/javascript">
     var myChart = echarts.init(document.getElementById('main'));
-    
+
     function randomData() {
         return Math.round(Math.random()*1000);
     }
@@ -147,10 +151,11 @@ def home():
 </body>
 </html>
 '''
-    return partHead+str+partEnd
+    return partHead + str + partEnd
+
 
 def shengshiHead():
-    return'''
+    return '''
     <!doctype html>
 <html class="no-js">
 <head>
@@ -166,7 +171,7 @@ def shengshiHead():
 
     <script src="http://dreamspark.com.cn/jquery.min.js"></script>
     <script src="http://dreamspark.com.cn/amazeui.min.js"></script>
-</head>    
+</head>
 
     <body>
 
@@ -199,8 +204,10 @@ def shengshiHead():
                 <ul class="am-list">
 
     '''
+
+
 def shengshiEnd():
-    return'''
+    return '''
 </ul>
             </div>
 
@@ -245,9 +252,9 @@ def shengshiEnd():
                             <div class="am-list-item-text">百度新闻是百度公司推出的中文新闻搜索平台，每天发布多条新闻，新闻源包括500多个权威网站，热点新闻由新闻源网站和媒体每天“民主投票”选出，不含任何人工编辑成分，真实反映每时每刻的新闻热点</div>
 
                         </div>
-                        
+
                     </li>
-                    
+
                 </ul>
         </div>
     </div>
@@ -282,27 +289,30 @@ def shengshiEnd():
 </html>
     '''
 
-def prinNewsDetail(title, context,link,time):
+
+def prinNewsDetail(title, context, link, time):
     return '''
                         <li class="am-g am-list-item-desced am-list-item-thumbed am-list-item-thumb-left" data-am-scrollspy="{animation:'fade'}">
 
                         <div class=" am-u-sm-9 am-list-main">
-                            <h3 class="am-list-item-hd"><a target='_blank' href="'''+link+'''">''' + title + '''</a></h3>
+                            <h3 class="am-list-item-hd"><a target='_blank' href="''' + link + '''">''' + title + '''</a></h3>
                            <div class="am-list-item-text">''' + context + '''</div>
                         </div>
 
                     </li>
                     <div class="newsico am-fr">
-                        <i class="am-icon-clock-o">'''+str(time)+'''</i>
+                        <i class="am-icon-clock-o">''' + str(time) + '''</i>
                     </div>
 
     '''
 
+
 def chengshiDetail(name):
     strresult = shengshiHead()
-    db = mysql.connector.connect(user='root', passwd='1234', db='news', charset='utf8')
+    db = mysql.connector.connect(user='root', passwd='dophin', db='news', charset='utf8')
     cur = db.cursor()
-    cur.execute("select title,content,link,time_happened from news where province='"+name+"' order by time_happened desc")
+    cur.execute(
+        "select title,content,link,time_happened from news where province='" + name + "' order by time_happened desc")
     for row in cur.fetchall():
         strresult += prinNewsDetail(row[0], row[1], row[2], row[3])
     cur.close()
@@ -311,147 +321,181 @@ def chengshiDetail(name):
                         </ul>
         ''' + shengshiEnd()
 
+
 @app.route(u"/黑龙江", methods=['GET', 'POST'])
 def heilongjiang():
     return chengshiDetail("黑龙江")
+
 
 @app.route(u'/吉林', methods=['GET', 'POST'])
 def jilin():
     return chengshiDetail("吉林")
 
+
 @app.route(u'/辽宁', methods=['GET', 'POST'])
 def liaoning():
     return chengshiDetail("辽宁")
+
 
 @app.route(u'/河北', methods=['GET', 'POST'])
 def hebei():
     return chengshiDetail("河北")
 
+
 @app.route(u'/山西', methods=['GET', 'POST'])
 def shanxi0():
     return chengshiDetail("山西")
+
 
 @app.route(u'/陕西', methods=['GET', 'POST'])
 def shanxi():
     return chengshiDetail("陕西")
 
+
 @app.route(u'/山东', methods=['GET', 'POST'])
 def shandong():
     return chengshiDetail("山东")
+
 
 @app.route(u'/河南', methods=['GET', 'POST'])
 def henan():
     return chengshiDetail("河南")
 
+
 @app.route(u'/江苏', methods=['GET', 'POST'])
 def jiangsu():
     return chengshiDetail("江苏")
+
 
 @app.route(u'/安徽', methods=['GET', 'POST'])
 def anhui():
     return chengshiDetail("安徽")
 
+
 @app.route(u'/湖北', methods=['GET', 'POST'])
 def hubei():
     return chengshiDetail("湖北")
+
 
 @app.route(u'/四川', methods=['GET', 'POST'])
 def sichuan():
     return chengshiDetail("四川")
 
+
 @app.route(u'/重庆', methods=['GET', 'POST'])
 def chongqing():
     return chengshiDetail("重庆")
+
 
 @app.route(u'/浙江', methods=['GET', 'POST'])
 def zhejiang():
     return chengshiDetail("浙江")
 
+
 @app.route(u'/江西', methods=['GET', 'POST'])
 def jiangxi():
     return chengshiDetail("江西")
+
 
 @app.route(u'/湖南', methods=['GET', 'POST'])
 def hunan():
     return chengshiDetail("湖南")
 
+
 @app.route(u'/贵州', methods=['GET', 'POST'])
 def guizhou():
     return chengshiDetail("贵州")
+
 
 @app.route(u'/福建', methods=['GET', 'POST'])
 def fujian():
     return chengshiDetail("福建")
 
+
 @app.route(u'/广西', methods=['GET', 'POST'])
 def guangxi():
     return chengshiDetail("广西")
+
 
 @app.route(u'/广东', methods=['GET', 'POST'])
 def guangdong():
     return chengshiDetail("广东")
 
+
 @app.route(u'/海南', methods=['GET', 'POST'])
 def hainan():
     return chengshiDetail("海南")
+
 
 @app.route(u'/北京', methods=['GET', 'POST'])
 def beijing():
     return chengshiDetail("北京")
 
+
 @app.route(u'/台湾', methods=['GET', 'POST'])
 def taiwan():
     return chengshiDetail("台湾")
+
 
 @app.route(u'/香港', methods=['GET', 'POST'])
 def xianggang():
     return chengshiDetail("香港")
 
+
 @app.route(u'/内蒙古', methods=['GET', 'POST'])
 def neimenggu():
     return chengshiDetail("内蒙古")
+
 
 @app.route(u'/甘肃', methods=['GET', 'POST'])
 def gansu():
     return chengshiDetail("甘肃")
 
+
 @app.route(u'/宁夏', methods=['GET', 'POST'])
 def ningxia():
     return chengshiDetail("宁夏")
+
 
 @app.route(u'/青海', methods=['GET', 'POST'])
 def qinghai():
     return chengshiDetail("青海")
 
+
 @app.route(u'/西藏', methods=['GET', 'POST'])
 def xizang():
     return chengshiDetail("西藏")
+
 
 @app.route(u'/云南', methods=['GET', 'POST'])
 def yunnan():
     return chengshiDetail("云南")
 
+
 @app.route(u'/新疆', methods=['GET', 'POST'])
 def xinjiang():
     return chengshiDetail("新疆")
 
+
 @app.route('/searchResult', methods=['POST'])
 def searchResult():
-    keyword=request.form['keyword']
-
-    strresult=""
-    db = mysql.connector.connect(user='root', passwd='1234', db='news', charset='utf8')
+    keyword = request.form['keyword']
+    strresult = ""
+    ids = query(keyword)
+    db = mysql.connector.connect(user='root', passwd='dophin', db='news', charset='utf8')
     cur = db.cursor()
-    cur.execute("select title,content,link,time_happened from news where title like '%"+keyword+"%' order by time_happened desc")
-    for row in cur.fetchall():
-        strresult += prinNewsDetail(row[0], row[1], row[2], row[3])
+    for identification in ids:
+        cur.execute("select title,content,link,time_happened from news where id =" + identification)
+        for row in cur.fetchall():
+            strresult += prinNewsDetail(row[0], row[1], row[2], row[3])
     cur.close()
     db.close()
 
-    return shengshiHead()+strresult+'''
+    return shengshiHead() + strresult + '''
                     </ul>
 
-    '''+shengshiEnd()
+    ''' + shengshiEnd()
+
 
 @app.route('/signin', methods=['GET'])
 def signin_form():
@@ -461,16 +505,18 @@ def signin_form():
               <p><button type="submit">Sign In</button></p>
               </form>'''
 
+
 @app.route('/signin', methods=['POST'])
 def signin():
     # 需要从request对象读取表单内容
-    if request.form['username']=='admin' and request.form['password']=='password':
+    if request.form['username'] == 'admin' and request.form['password'] == 'password':
         return '<h3>Hello, admin!</h3>'
     return '<h3>Bad username or password.</h3>'
 
-@app.route('/search',  methods=['GET', 'POST'])
+
+@app.route('/search', methods=['GET', 'POST'])
 def indexSearch():
-    return'''
+    return '''
     <!DOCTYPE HTML>
 <html>
 <head>
@@ -503,7 +549,7 @@ def indexSearch():
 <div class="index-banner">
 
 	    <div class="wmuSlider example1">
-			   <article style="position: absolute; width: 100%; opacity: 0;"> 
+			   <article style="position: absolute; width: 100%; opacity: 0;">
 				   	<div class="banner-wrap">
 						<div class="cont span_2_of_3">
 						    <h1>SEARCH NEWS</h1>
@@ -515,7 +561,7 @@ def indexSearch():
 						</div>
 					</div>
 				 </article>
-				 <article style="position: absolute; width: 100%; opacity: 0;"> 
+				 <article style="position: absolute; width: 100%; opacity: 0;">
 				   	<div class="banner-wrap">
 						<div class="cont span_2_of_3">
 						   <h1>NEWS MAP, GET NEW FROM MAP.</h1>
@@ -523,12 +569,12 @@ def indexSearch():
 					</div>
 				 </article>
 		  </div>
-                  <script src="http://dreamspark.com.cn/jquery.wmuSlider.js"></script> 
+                  <script src="http://dreamspark.com.cn/jquery.wmuSlider.js"></script>
 					<script>
        				     $('.example1').wmuSlider();
    					</script>
    	   </div>
-   	   
+
    	   <div data-am-widget="gotop" class="am-gotop am-gotop-fixed" >
     <a href="#top" title="回到顶部">
         <span class="am-gotop-title">回到顶部</span>
@@ -557,9 +603,10 @@ def indexSearch():
 </html>
     '''
 
-@app.route('/searchMap',  methods=['GET', 'POST'])
+
+@app.route('/searchMap', methods=['GET', 'POST'])
 def indexSearch2():
-    return'''
+    return '''
     <!DOCTYPE HTML>
 <html>
 <head>
@@ -592,7 +639,7 @@ def indexSearch2():
 <div class="index-banner">
 
 	    <div class="wmuSlider example1">
-			   <article style="position: absolute; width: 100%; opacity: 0;"> 
+			   <article style="position: absolute; width: 100%; opacity: 0;">
 				   	<div class="banner-wrap">
 						<div class="cont span_2_of_3">
 						    <h1>SEARCH NEWS</h1>
@@ -604,7 +651,7 @@ def indexSearch2():
 						</div>
 					</div>
 				 </article>
-				 <article style="position: absolute; width: 100%; opacity: 0;"> 
+				 <article style="position: absolute; width: 100%; opacity: 0;">
 				   	<div class="banner-wrap">
 						<div class="cont span_2_of_3">
 						   <h1>NEWS MAP, GET NEW FROM MAP.</h1>
@@ -612,12 +659,12 @@ def indexSearch2():
 					</div>
 				 </article>
 		  </div>
-                  <script src="http://dreamspark.com.cn/jquery.wmuSlider.js"></script> 
+                  <script src="http://dreamspark.com.cn/jquery.wmuSlider.js"></script>
 					<script>
-       				     $('.example1').wmuSlider();         
-   					</script> 	           	      
+       				     $('.example1').wmuSlider();
+   					</script>
    	   </div>
-   	   
+
    	   <div data-am-widget="gotop" class="am-gotop am-gotop-fixed" >
     <a href="#top" title="回到顶部">
         <span class="am-gotop-title">回到顶部</span>
@@ -650,14 +697,18 @@ def indexSearch2():
 @app.route('/searchMapResult', methods=['POST'])
 def home2():
     keyword = request.form['keyword']
-    db = mysql.connector.connect(user='root', passwd='1234', db='news', charset='utf8')
-
+    db = mysql.connector.connect(user='root', passwd='dophin', db='news', charset='utf8')
     cur = db.cursor()
-    cur.execute("select province,count(*) from news where title like '%" + keyword + "%' group by province")
+    ids = query(keyword)
+    idstr = ""
+    for identification in ids:
+        idstr = idstr + identification + ","
+    idstr = idstr[:-1]
+    cur.execute("select province,count(*) from news where id in(" + idstr + ") group by province")
     str = ""
     for row in cur.fetchall():
         str += printme("新闻：", row[0], row[1])
-    cur.execute("select title,province from news where title like '%" + keyword + "%' group by province")
+    cur.execute("select title,province from news where id in(" + idstr + ") group by province")
     for row in cur.fetchall():
         str += printme(row[0] + " 等", row[1], "0")
 
@@ -767,6 +818,7 @@ def home2():
 </html>
 '''
     return partHead + str + partEnd
+
 
 if __name__ == '__main__':
     app.run()
