@@ -68,7 +68,6 @@ def home():
                 <li class="am-active"><a href="#">首页</a></li>
                 <li><a href="/search">新闻列表搜索</a></li>
                 <li><a href="/searchMap">新闻地图搜索</a></li>
-                <li><a href="http://news.sina.com.cn/">新浪新闻</a></li>
             </ul>
         </div>
     </div>
@@ -115,10 +114,36 @@ def home():
     ]
     };
     myChart.on('click', function (param){
+    if(param.value>0)
         location.href = "/"+param.name;
     });
     myChart.setOption(option);
 </script>
+
+<div data-am-widget="gotop" class="am-gotop am-gotop-fixed" >
+    <a href="#top" title="回到顶部">
+        <span class="am-gotop-title">回到顶部</span>
+        <i class="am-gotop-icon am-icon-chevron-up"></i>
+    </a>
+</div>
+
+<footer>
+    <div class="content">
+        <ul class="am-avg-sm-5 am-avg-md-5 am-avg-lg-5 am-thumbnails">
+            <li><a href="#">联系我们</a></li>
+            <li><a href="#">加入我们</a></li>
+            <li><a href="#">合作伙伴</a></li>
+            <li><a href="#">广告及服务</a></li>
+            <li><a href="#">友情链接</a></li>
+        </ul>
+        <p>数据库操作系统实践课小组出品<br>© 2017 AllMobilize, Inc. Licensed under MIT license.</p>
+        <div class="w2div">
+            <ul data-am-widget="gallery" class="am-gallery am-avg-sm-2
+  am-avg-md-2 am-avg-lg-2 am-gallery-overlay" data-am-gallery="{ pureview: true }" >
+            </ul>
+        </div>
+    </div>
+</footer>
 </body>
 </html>
 '''
@@ -153,7 +178,9 @@ def shengshiHead():
         <div class="am-collapse am-topbar-collapse" id="collapse-head">
             <ul class="am-nav am-nav-pills am-topbar-nav">
                 <li><a href="/">首页</a></li>
-                <li class="am-active"><a href="#">省市新闻列表</a></li>
+                <li><a href="/search">新闻列表搜索</a></li>
+                <li><a href="/searchMap">新闻地图搜索</a></li>
+                <li class="am-active"><a href="#">新闻列表</a></li>
             </ul>
         </div>
     </div>
@@ -225,6 +252,31 @@ def shengshiEnd():
         </div>
     </div>
 </div>
+
+<div data-am-widget="gotop" class="am-gotop am-gotop-fixed" >
+    <a href="#top" title="回到顶部">
+        <span class="am-gotop-title">回到顶部</span>
+        <i class="am-gotop-icon am-icon-chevron-up"></i>
+    </a>
+</div>
+
+<footer>
+    <div class="content">
+        <ul class="am-avg-sm-5 am-avg-md-5 am-avg-lg-5 am-thumbnails">
+            <li><a href="#">联系我们</a></li>
+            <li><a href="#">加入我们</a></li>
+            <li><a href="#">合作伙伴</a></li>
+            <li><a href="#">广告及服务</a></li>
+            <li><a href="#">友情链接</a></li>
+        </ul>
+        <p>数据库操作系统实践课小组出品<br>© 2017 AllMobilize, Inc. Licensed under MIT license.</p>
+        <div class="w2div">
+            <ul data-am-widget="gallery" class="am-gallery am-avg-sm-2
+  am-avg-md-2 am-avg-lg-2 am-gallery-overlay" data-am-gallery="{ pureview: true }" >
+            </ul>
+        </div>
+    </div>
+</footer>
 
 </body>
 </html>
@@ -347,7 +399,17 @@ def hainan():
 @app.route('/searchResult', methods=['POST'])
 def searchResult():
     keyword=request.form['keyword']
-    return shengshiHead()+prinNewsDetail(keyword,keyword,"http://www.baidu.com/")+prinNewsDetail("新闻标题2","新闻标题2","http://www.baidu.com/")+'''
+
+    strresult=""
+    db = mysql.connector.connect(user='root', passwd='1234', db='news', charset='utf8')
+    cur = db.cursor()
+    cur.execute("select title,content,link,time_happened from news where title like '%"+keyword+"%' order by time_happened desc")
+    for row in cur.fetchall():
+        strresult += prinNewsDetail(row[0], row[1], row[2], row[3])
+    cur.close()
+    db.close()
+
+    return shengshiHead()+strresult+'''
                     </ul>
 
     '''+shengshiEnd()
@@ -392,7 +454,8 @@ def indexSearch():
         <div class="am-collapse am-topbar-collapse" id="collapse-head">
             <ul class="am-nav am-nav-pills am-topbar-nav">
                 <li><a href="/">首页</a></li>
-                <li class="am-active"><a href="#">新闻搜索</a></li>
+                <li class="am-active"><a href="#">新闻列表搜索</a></li>
+                <li><a href="/searchMap">新闻地图搜索</a></li>
             </ul>
         </div>
     </div>
@@ -404,7 +467,7 @@ def indexSearch():
 			   <article style="position: absolute; width: 100%; opacity: 0;"> 
 				   	<div class="banner-wrap">
 						<div class="cont span_2_of_3">
-						    <h1>SEARCH NEWS.</h1>
+						    <h1>SEARCH NEWS</h1>
 						     <div class="search_box">
 								<form action="/searchResult" method="post">
 								   <input name="keyword" type="text"><input type="submit" value="">
@@ -416,16 +479,41 @@ def indexSearch():
 				 <article style="position: absolute; width: 100%; opacity: 0;"> 
 				   	<div class="banner-wrap">
 						<div class="cont span_2_of_3">
-						   <h1>NEWS MAP, A NEW WAY TO GET NEWS.</h1>
+						   <h1>NEWS MAP, GET NEWS FROM MAP.</h1>
 						</div>
 					</div>
 				 </article>
 		  </div>
                   <script src="http://dreamspark.com.cn/jquery.wmuSlider.js"></script> 
 					<script>
-       				     $('.example1').wmuSlider();         
-   					</script> 	           	      
+       				     $('.example1').wmuSlider();
+   					</script>
    	   </div>
+   	   
+   	   <div data-am-widget="gotop" class="am-gotop am-gotop-fixed" >
+    <a href="#top" title="回到顶部">
+        <span class="am-gotop-title">回到顶部</span>
+        <i class="am-gotop-icon am-icon-chevron-up"></i>
+    </a>
+</div>
+
+<footer>
+    <div class="content">
+        <ul class="am-avg-sm-5 am-avg-md-5 am-avg-lg-5 am-thumbnails">
+            <li><a href="#">联系我们</a></li>
+            <li><a href="#">加入我们</a></li>
+            <li><a href="#">合作伙伴</a></li>
+            <li><a href="#">广告及服务</a></li>
+            <li><a href="#">友情链接</a></li>
+        </ul>
+        <p>数据库操作系统实践课小组出品<br>© 2017 AllMobilize, Inc. Licensed under MIT license.</p>
+        <div class="w2div">
+            <ul data-am-widget="gallery" class="am-gallery am-avg-sm-2
+  am-avg-md-2 am-avg-lg-2 am-gallery-overlay" data-am-gallery="{ pureview: true }" >
+            </ul>
+        </div>
+    </div>
+</footer>
 </body>
 </html>
     '''
@@ -455,7 +543,8 @@ def indexSearch2():
         <div class="am-collapse am-topbar-collapse" id="collapse-head">
             <ul class="am-nav am-nav-pills am-topbar-nav">
                 <li><a href="/">首页</a></li>
-                <li class="am-active"><a href="#">新闻搜索</a></li>
+                <li><a href="/search">新闻列表搜索</a></li>
+                <li class="am-active"><a href="#">新闻地图搜索</a></li>
             </ul>
         </div>
     </div>
@@ -467,7 +556,7 @@ def indexSearch2():
 			   <article style="position: absolute; width: 100%; opacity: 0;"> 
 				   	<div class="banner-wrap">
 						<div class="cont span_2_of_3">
-						    <h1>SEARCH NEWS.</h1>
+						    <h1>SEARCH NEWS</h1>
 						     <div class="search_box">
 								<form action="/searchMapResult" method="post">
 								   <input name="keyword" type="text"><input type="submit" value="">
@@ -489,6 +578,31 @@ def indexSearch2():
        				     $('.example1').wmuSlider();         
    					</script> 	           	      
    	   </div>
+   	   
+   	   <div data-am-widget="gotop" class="am-gotop am-gotop-fixed" >
+    <a href="#top" title="回到顶部">
+        <span class="am-gotop-title">回到顶部</span>
+        <i class="am-gotop-icon am-icon-chevron-up"></i>
+    </a>
+</div>
+
+<footer>
+    <div class="content">
+        <ul class="am-avg-sm-5 am-avg-md-5 am-avg-lg-5 am-thumbnails">
+            <li><a href="#">联系我们</a></li>
+            <li><a href="#">加入我们</a></li>
+            <li><a href="#">合作伙伴</a></li>
+            <li><a href="#">广告及服务</a></li>
+            <li><a href="#">友情链接</a></li>
+        </ul>
+        <p>数据库操作系统实践课小组出品<br>© 2017 AllMobilize, Inc. Licensed under MIT license.</p>
+        <div class="w2div">
+            <ul data-am-widget="gallery" class="am-gallery am-avg-sm-2
+  am-avg-md-2 am-avg-lg-2 am-gallery-overlay" data-am-gallery="{ pureview: true }" >
+            </ul>
+        </div>
+    </div>
+</footer>
 </body>
 </html>
     '''
@@ -500,12 +614,11 @@ def home2():
     db = mysql.connector.connect(user='root', passwd='1234', db='news', charset='utf8')
 
     cur = db.cursor()
-    # cur.execute('select title,province from news')
-    cur.execute("select province,count(*) from news group by province")
+    cur.execute("select province,count(*) from news where title like '%" + keyword + "%' group by province")
     str = ""
     for row in cur.fetchall():
         str += printme("新闻：", row[0], row[1])
-    cur.execute("select title,province from news group by province")
+    cur.execute("select title,province from news where title like '%" + keyword + "%' group by province")
     for row in cur.fetchall():
         str += printme(row[0] + " 等", row[1], "0")
 
@@ -532,10 +645,10 @@ def home2():
         </h1>
         <div class="am-collapse am-topbar-collapse" id="collapse-head">
             <ul class="am-nav am-nav-pills am-topbar-nav">
-                <li class="am-active"><a href="#">首页</a></li>
-                <li><a href="/search">新闻列表搜索</a></li>
-                <li><a href="/searchMap">新闻地图搜索</a></li>
-                <li><a href="http://news.sina.com.cn/">新浪新闻</a></li>
+                <li><a href="/">首页</a></li>
+                <li><a href="/searchMap">新闻列表搜索</a></li>
+                <li><a href="/search">新闻地图搜索</a></li>
+                <li class="am-active"><a href="#">新闻地图搜索</a></li>
             </ul>
         </div>
     </div>
@@ -559,10 +672,10 @@ def home2():
         },
         visualMap: {
             min: 0,
-            max: 500,
+            max: 200,
             left: 'left',
             top: 'bottom',
-            text: ['500','0'],
+            text: ['200','0'],
             calculable: true
         },
         toolbox: {
@@ -586,6 +699,31 @@ def home2():
     });
     myChart.setOption(option);
 </script>
+
+<div data-am-widget="gotop" class="am-gotop am-gotop-fixed" >
+    <a href="#top" title="回到顶部">
+        <span class="am-gotop-title">回到顶部</span>
+        <i class="am-gotop-icon am-icon-chevron-up"></i>
+    </a>
+</div>
+
+<footer>
+    <div class="content">
+        <ul class="am-avg-sm-5 am-avg-md-5 am-avg-lg-5 am-thumbnails">
+            <li><a href="#">联系我们</a></li>
+            <li><a href="#">加入我们</a></li>
+            <li><a href="#">合作伙伴</a></li>
+            <li><a href="#">广告及服务</a></li>
+            <li><a href="#">友情链接</a></li>
+        </ul>
+        <p>数据库操作系统实践课小组出品<br>© 2017 AllMobilize, Inc. Licensed under MIT license.</p>
+        <div class="w2div">
+            <ul data-am-widget="gallery" class="am-gallery am-avg-sm-2
+  am-avg-md-2 am-avg-lg-2 am-gallery-overlay" data-am-gallery="{ pureview: true }" >
+            </ul>
+        </div>
+    </div>
+</footer>
 </body>
 </html>
 '''
