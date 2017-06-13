@@ -395,6 +395,45 @@ def guangdong():
 def hainan():
     return chengshiDetail("海南")
 
+@app.route(u'/北京', methods=['GET', 'POST'])
+def beijing():
+    return chengshiDetail("北京")
+
+@app.route(u'/台湾', methods=['GET', 'POST'])
+def taiwan():
+    return chengshiDetail("台湾")
+
+@app.route(u'/香港', methods=['GET', 'POST'])
+def xianggang():
+    return chengshiDetail("香港")
+
+@app.route(u'/内蒙古', methods=['GET', 'POST'])
+def neimenggu():
+    return chengshiDetail("内蒙古")
+
+@app.route(u'/甘肃', methods=['GET', 'POST'])
+def gansu():
+    return chengshiDetail("甘肃")
+
+@app.route(u'/宁夏', methods=['GET', 'POST'])
+def ningxia():
+    return chengshiDetail("宁夏")
+
+@app.route(u'/青海', methods=['GET', 'POST'])
+def qinghai():
+    return chengshiDetail("青海")
+
+@app.route(u'/西藏', methods=['GET', 'POST'])
+def xizang():
+    return chengshiDetail("西藏")
+
+@app.route(u'/云南', methods=['GET', 'POST'])
+def yunnan():
+    return chengshiDetail("云南")
+
+@app.route(u'/新疆', methods=['GET', 'POST'])
+def xinjiang():
+    return chengshiDetail("新疆")
 
 @app.route('/searchResult', methods=['POST'])
 def searchResult():
@@ -479,7 +518,7 @@ def indexSearch():
 				 <article style="position: absolute; width: 100%; opacity: 0;"> 
 				   	<div class="banner-wrap">
 						<div class="cont span_2_of_3">
-						   <h1>NEWS MAP, GET NEWS FROM MAP.</h1>
+						   <h1>NEWS MAP, GET NEW FROM MAP.</h1>
 						</div>
 					</div>
 				 </article>
@@ -568,7 +607,7 @@ def indexSearch2():
 				 <article style="position: absolute; width: 100%; opacity: 0;"> 
 				   	<div class="banner-wrap">
 						<div class="cont span_2_of_3">
-						   <h1>NEWS MAP, A NEW WAY TO GET NEWS.</h1>
+						   <h1>NEWS MAP, GET NEW FROM MAP.</h1>
 						</div>
 					</div>
 				 </article>
